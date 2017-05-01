@@ -1,2 +1,2 @@
 # challenged
-Serving up those delicious CTF challenges to you fine hacker folk since 2017.
+challenge**d** - /ˈCHalənj-dee/ *noun* - a daemon to serve CTF challenges to inquisitive minds since 2017. 
