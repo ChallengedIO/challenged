@@ -33,38 +33,26 @@ class Challenge:
         self.difficulty = x[3]
         self.name = x[4]
 
-def search_by_event(d, l):
+def search_by_property(q, p, l):
     tmp = []
+    #TODO: Figure out a more streamlined way to resolve this if more \
+        #properties get added
+    prop_muxer = {
+        'event' : lambda c:  c.event,
+        'year' : lambda c:  c.year,
+        'category' : lambda c:  c.category,
+        'difficulty' : lambda c:  c.difficulty,
+        'name' : lambda c:  c.name,
+    }
+    func = prop_muxer.get(p, lambda: None)
+
+    if func == None:
+        raise InputError('Could not resolve query parameter.')
+
     for c in l:
-        if c.event == d:
+        if func(c) == q:
             tmp.append(c)
     return tmp
-
-def search_by_year(d, l):
-    tmp = []
-    for c in l:
-        if c.year == d:
-            tmp.append(c)
-    return tmp
-
-def search_by_category(d, l):
-    tmp = []
-    for c in l:
-        if c.category == d:
-            tmp.append(c)
-    return tmp
-
-def search_by_difficulty(d, l):
-    tmp = []
-    for c in l:
-        if c.difficulty == d:
-            tmp.append(c)
-    return tmp
-
-def search_by_name(d, l):
-    for c in l:
-        if c.name == d:
-            return [c]
 
 def print_challenges_list(l):
     for c in l:
@@ -120,27 +108,27 @@ def main():
 
     print('Get nosql-160 challenge')
     print('~~~~~~~~~~~~~~~~~~~~~~~')
-    print_challenges_list(search_by_name('nosql-160', challenges))
+    print_challenges_list(search_by_property('nosql-160', 'name',  challenges))
     print()
 
     print('Get all pwn challenges')
     print('~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print_challenges_list(search_by_category('pwn', challenges))
+    print_challenges_list(search_by_property('pwn', 'category',  challenges))
     print()
 
     print('Get all level 1 challenges')
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print_challenges_list(search_by_difficulty('1', challenges))
+    print_challenges_list(search_by_property('1', 'difficulty',  challenges))
     print()
 
     print('Get all challenges from all 9447 event(s)')
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print_challenges_list(search_by_event('9447', challenges))
+    print_challenges_list(search_by_property('9447', 'event',  challenges))
     print()
 
     print('Get all challenges from 2014')
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print_challenges_list(search_by_year('2014', challenges))
+    print_challenges_list(search_by_property('2014', 'year',  challenges))
     print()
 
 if __name__ == '__main__':
