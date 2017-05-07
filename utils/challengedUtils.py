@@ -4,6 +4,13 @@ import os.path
 import tempfile
 
 DEBUG = False
+endpoint = 'http://s3.amazonaws.com/ctf-challenges/'
+recipe_path_fmt = '{}/{}/{}/{}/{}/recipe.xml'
+xmltag_contents = '{http://s3.amazonaws.com/doc/2006-03-01/}Contents'
+xmltag_key = '{http://s3.amazonaws.com/doc/2006-03-01/}Key'
+regex_fullpath = '^([^\/]+\/){5}$'
+regex_partpath = '([^\/]+)\/' 
+files_path_fmt = '({}\/{}\/{}/{}/{}\/[^\/]+$)'
 
 class Parser:
     def __init__(self, x):
@@ -33,6 +40,11 @@ class Challenge:
         self.difficulty = x[3]
         self.name = x[4]
 
+def get_recipe_url(c):
+    recipe_url_fmt = endpoint + '{}/{}/{}/{}/{}/recipe.xml'
+    return recipe_url_fmt.format(c.event, c.year, c.category, c.difficulty, \
+                                 c.name)
+    
 def search_by_property(q, p, l):
     tmp = []
     #TODO: Figure out a more streamlined way to resolve this if more \
@@ -54,6 +66,19 @@ def search_by_property(q, p, l):
             tmp.append(c)
     return tmp
 
+#TODO: Determine if this should be resolved in the recipe
+def get_challenge_files(c, r):
+    regex_file = files_path_fmt.format(c.event, c.year, c.category, \
+                                       c.difficulty, c.name)
+    print(regex_file)
+    for e in xml_root.findall(xmltag_contents):
+        for k in e.findall(xmltag_key):
+            if re.search(regex_file, k.text) is not None:
+                print(k.text)
+
+def get_challenge_recipe(c):
+    print(get_recipe_url(c))
+
 def print_challenges_list(l):
     for c in l:
         print('{')
@@ -69,15 +94,11 @@ def print_challenges_list(l):
 def main():
     if DEBUG:
         try:
+            global xml_root
             global challenges
         except:
             pass
 
-    endpoint = 'http://s3.amazonaws.com/ctf-challenges/'
-    xmltag_contents = '{http://s3.amazonaws.com/doc/2006-03-01/}Contents'
-    xmltag_key = '{http://s3.amazonaws.com/doc/2006-03-01/}Key'
-    regex_fullpath = '^([^\/]+\/){5}$'
-    regex_partpath = '([^\/]+)\/' 
     tmpfile_manifest = tempfile.TemporaryFile()
     challenges = []
 
@@ -130,6 +151,12 @@ def main():
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print_challenges_list(search_by_property('2014', 'year',  challenges))
     print()
+
+    print('Get all files from nosql-160 challenge')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    cur_c = search_by_property('europe02-120', 'name',  challenges)[0]
+    #get_challenge_files(cur_c, xml_root)
+    get_challenge_recipe(cur_c)
 
 if __name__ == '__main__':
   main()
