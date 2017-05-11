@@ -3,7 +3,6 @@ import xml.etree.ElementTree
 import os.path
 import tempfile
 
-DEBUG = False
 endpoint = 'http://s3.amazonaws.com/ctf-challenges/'
 recipe_path_fmt = '{}/{}/{}/{}/{}/recipe.xml'
 xmltag_contents = '{http://s3.amazonaws.com/doc/2006-03-01/}Contents'
@@ -92,7 +91,7 @@ def print_challenges_list(l):
 #TODO: Add or refactor a search function that takes a list of parameters
 
 def main():
-    if DEBUG:
+    if __debug__:
         try:
             global xml_root
             global challenges
