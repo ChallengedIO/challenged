@@ -23,5 +23,5 @@ if __name__ == "__main__":
 		# TODO: some debug shit
 		c = CIODownloader()
 		# ...
-	else
+	else:
 		pass
