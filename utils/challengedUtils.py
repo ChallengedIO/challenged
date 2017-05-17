@@ -3,15 +3,16 @@
 
 # This code allows the game client to operate cleaner by "hiding all the bodies" here.
 
+import requests
 import re
 import urllib.request
 import xml.etree.ElementTree
 import os.path
 import tempfile
 
-import utils.CIODownloader as CIODownloader
-import utils.CIOInitializer as CIOInitializer
-import utils.CIODaemonizer as CIODaemonizer
+from utils.CIODownloader import CIODownloader as CIODownloader
+from utils.CIOInitializer import CIOInitializer as CIOInitializer
+from utils.CIODaemonizer import CIODaemonizer as CIODaemonizer
 
 endpoint        = 'http://s3.amazonaws.com/ctf-challenges/'
 recipe_path_fmt = '{}/{}/{}/{}/{}/recipe.xml'
@@ -20,26 +21,6 @@ xmltag_key      = '{http://s3.amazonaws.com/doc/2006-03-01/}Key'
 regex_fullpath  = '^([^\/]+\/){5}$'
 regex_partpath  = '([^\/]+)\/' 
 files_path_fmt  = '({}\/{}\/{}/{}/{}\/[^\/]+$)'
-
-class Parser:
-    def __init__(self, x):
-        self.x = x
-
-class Loader:
-    def __init__(self, x):
-        self.x = x
-
-class Downloader:
-    def __init__(self, x):
-        self.x = x
-
-class Initializer:
-    def __init__(self, x):
-        self.x = x
-
-class Daemonizer:
-    def __init__(self, x):
-        self.x = x
 
 class Challenge:
     def __init__(self, x):
@@ -145,5 +126,8 @@ def print_challenges_list(l):
         print("\tYear: {}".format(c.year))
         print('}')
 
+def fetch(category, difficulty):
+     c = CIODownloader()
+     r = requests.get(c.url)
 
-
+     return c

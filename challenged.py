@@ -15,18 +15,18 @@ import utils.challengedUtils as CIOUtils
 #  5) Provision OS for challenge via CIOInitializer
 #  6) Execute challenge as a service, send player info via CIODaemonizer
 
+CATEGORY = "PWN"
+
 def main():
     # 1) Greet the player
-    print('READY PLAYER ONE')
+    print('[+] READY PLAYER ONE')
 
-    # 2) Update challenge list
+    # 2) Update Manifest
     print('[+] UPDATING CHALLENGES')
-
     challenges = CIOUtils.update_manifest()
-
     print('[+] {} CHALLENGES LOADED 👌'.format(len(challenges)))
     
-    # 2) Difficulty/Category:
+    # 2) DIFFICULTY/CATEGORY
     while True:
 	    try:
 	    	dontoverflowmebro = input('SELECT DIFFICULTY [1-5]: ')
@@ -49,31 +49,37 @@ def main():
 	    	print('naughty boy. naughty, naughty naughty!')
 	    	break
 
-    print ('[+] CATEGORY SET TO: {}'.format("pwn"))	# TODO: Include additional categories as they become available
+	# TODO: Include additional categories as they become available, hold ya horses! 
+    print ('[+] CATEGORY SET TO {}'.format("pwn").upper())
 
     # 5) Fetch challenge via CIODownloader
-
-    #print('Get all pwn challenges')
-    #print('~~~~~~~~~~~~~~~~~~~~~~~~~')
-    #CIOUtils.print_challenges_list(CIOUtils.search_by_property('pwn', 'category',  challenges))
-    #print()
-
-    #print('Get all files from nosql-160 challenge')
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    cur_c = CIOUtils.search_by_property('europe02-120', 'name',  challenges)[0]
-    #get_challenge_files(cur_c, xml_root)
-    CIOUtils.get_challenge_recipe(cur_c)
-
-	#  6) Provision OS for challenge via CIOInitializer 
-	#  7) Execute challenge as a service, send player info via CIODaemonizer
-
+    challenge = CIOUtils.fetch(CATEGORY, dontoverflowmebro)
+    print (challenge.url)
 
 if __name__ == '__main__':
 	if __debug__:
 	    try:
 	        global xml_root
 	        global challenges
+	        print (challenges)
 	    except:
 	        pass
 
 	main()
+
+
+    #print('Get all pwn challenges')
+    #print('~~~~~~~~~~~~~~~~~~~~~~~~~')
+    #CIOUtils.print_challenges_list(CIOUtils.search_by_property('pwn', 'category',  challenges))
+    #print()
+
+	'''
+    print('Get all files from nosql-160 challenge')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    cur_c = CIOUtils.search_by_property('europe02-120', 'name',  challenges)[0]
+    get_challenge_files(cur_c, xml_root)
+    CIOUtils.get_challenge_recipe(cur_c)
+	'''
+
+	#  6) Provision OS for challenge via CIOInitializer 
+	#  7) Execute challenge as a service, send player info via CIODaemonizer
