@@ -7,17 +7,17 @@ import xml.etree.ElementTree
 import os.path
 import tempfile
 
-import utils.CIODownloader
-import utils.CIOInitializer
-import utils.CIODaemonizer
+import utils.CIODownloader as CIODownloader
+import utils.CIOInitializer as CIOInitializer
+import utils.CIODaemonizer as CIODaemonizer
 
-endpoint = 'http://s3.amazonaws.com/ctf-challenges/'
+endpoint        = 'http://s3.amazonaws.com/ctf-challenges/'
 recipe_path_fmt = '{}/{}/{}/{}/{}/recipe.xml'
 xmltag_contents = '{http://s3.amazonaws.com/doc/2006-03-01/}Contents'
-xmltag_key = '{http://s3.amazonaws.com/doc/2006-03-01/}Key'
-regex_fullpath = '^([^\/]+\/){5}$'
-regex_partpath = '([^\/]+)\/' 
-files_path_fmt = '({}\/{}\/{}/{}/{}\/[^\/]+$)'
+xmltag_key      = '{http://s3.amazonaws.com/doc/2006-03-01/}Key'
+regex_fullpath  = '^([^\/]+\/){5}$'
+regex_partpath  = '([^\/]+)\/' 
+files_path_fmt  = '({}\/{}\/{}/{}/{}\/[^\/]+$)'
 
 class Parser:
     def __init__(self, x):
@@ -47,6 +47,30 @@ class Challenge:
         self.difficulty = x[3]
         self.name = x[4]
 
+def update_manifest():
+    # Update challenge list from S3 bucket
+    xml_req = urllib.request.urlopen(endpoint + '?prefix=&delimiter=')
+
+    manifest = tempfile.TemporaryFile()
+    manifest.write(xml_req.read())
+    manifest.seek(0)
+
+    xml_root = xml.etree.ElementTree.parse(manifest)
+    manifest.close()
+
+    # 4) Index challenge list
+    challenges = []
+
+    # TODO: Why not call get_challenge_files here? 
+    # Filter out the non-sense
+    for e in xml_root.findall(xmltag_contents):     
+        for k in e.findall(xmltag_key):
+            if re.search(regex_fullpath, k.text) is not None:
+                m = re.findall(regex_partpath, k.text)
+                nc = Challenge(m)
+                challenges.append(nc)
+    return challenges
+
 def get_recipe_url(c):
     recipe_url_fmt = endpoint + '{}/{}/{}/{}/{}/recipe.xml'
     return recipe_url_fmt.format(c.event, c.year, c.category, c.difficulty, \
@@ -54,14 +78,14 @@ def get_recipe_url(c):
     
 def search_by_property(q, p, l):
     tmp = []
-    #TODO: Figure out a more streamlined way to resolve this if more \
-        #properties get added
+    # TODO: Figure out a more streamlined way to resolve this if more \
+    # properties get added
     prop_muxer = {
-        'event' : lambda c:  c.event,
-        'year' : lambda c:  c.year,
-        'category' : lambda c:  c.category,
-        'difficulty' : lambda c:  c.difficulty,
-        'name' : lambda c:  c.name,
+        'event'      : lambda c : c.event,
+        'year'       : lambda c : c.year,
+        'category'   : lambda c : c.category,
+        'difficulty' : lambda c : c.difficulty,
+        'name'       : lambda c : c.name,
     }
     func = prop_muxer.get(p, lambda: None)
 
@@ -96,6 +120,5 @@ def print_challenges_list(l):
         print("\tYear: {}".format(c.year))
         print('}')
 
-#TODO: Add or refactor a search function that takes a list of parameters
 
 
