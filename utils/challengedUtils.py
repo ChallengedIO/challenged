@@ -1,6 +1,8 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
+# This code allows the game client to operate cleaner by "hiding all the bodies" here.
+
 import re
 import urllib.request
 import xml.etree.ElementTree
@@ -48,7 +50,7 @@ class Challenge:
         self.name = x[4]
 
 def update_manifest():
-    # Update challenge list from S3 bucket
+    """ Update challenge list from S3 bucket """
     xml_req = urllib.request.urlopen(endpoint + '?prefix=&delimiter=')
 
     manifest = tempfile.TemporaryFile()
@@ -58,10 +60,8 @@ def update_manifest():
     xml_root = xml.etree.ElementTree.parse(manifest)
     manifest.close()
 
-    # 4) Index challenge list
     challenges = []
 
-    # TODO: Why not call get_challenge_files here? 
     # Filter out the non-sense
     for e in xml_root.findall(xmltag_contents):     
         for k in e.findall(xmltag_key):
@@ -77,6 +77,31 @@ def get_recipe_url(c):
                                  c.name)
     
 def search_by_property(q, p, l):
+
+    '''    
+    # More examples:
+    
+    print('Get nosql-160 challenge')
+    print('~~~~~~~~~~~~~~~~~~~~~~~')
+    CIOUtils.print_challenges_list(CIOUtils.search_by_property('nosql-160', 'name',  challenges))
+    print()
+
+    print('Get all level 1 challenges')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    CIOUtils.print_challenges_list(CIOUtils.search_by_property('1', 'difficulty',  challenges))
+    print()
+
+    print('Get all challenges from all 9447 event(s)')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    CIOUtils.print_challenges_list(CIOUtils.search_by_property('9447', 'event',  challenges))
+    print()
+
+    print('Get all challenges from 2014')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    CIOUtils.print_challenges_list(CIOUtils.search_by_property('2014', 'year',  challenges))
+    print()
+    '''
+
     tmp = []
     # TODO: Figure out a more streamlined way to resolve this if more \
     # properties get added
