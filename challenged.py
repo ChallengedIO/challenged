@@ -1,7 +1,7 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import utils.challengedUtils as CIOUtils
+import utils.CIOUtils as CIOUtils
 
 # This is the client, code should be focused on user-interaction only and 
 # handling the interface between the core and the player. To reduce complexity, the client should
@@ -15,8 +15,43 @@ import utils.challengedUtils as CIOUtils
 #  5) Provision OS for challenge via CIOInitializer
 #  6) Execute challenge as a service, send player info via CIODaemonizer
 
-CATEGORY = "PWN"
+#TODO: Replace with a challenge obj that can be used as a query param
+LEVEL = ''
+CATEGORY = ''
+NAME = ''
+EVENT = ''
+YEAR = ''
 
+def select_level(challenges):
+    print ('Available levels:')
+    unq_lvls = sorted(CIOUtils.get_unique_properties('difficulty', \
+                                              challenges))
+    i = 0
+    for lvl in unq_lvls:
+        print('{}: {}'.format(i, lvl))
+        i += 1
+
+    sel = int(input('SELECT LEVEL [0-{}]: '.format(len(unq_lvls))))
+    if sel not in range(0, len(unq_lvls)):
+        raise ValueError
+    global LEVEL
+    LEVEL = unq_lvls[sel]
+
+def select_category(challenges):
+    print ('Available categories:')
+    unq_cats = sorted(CIOUtils.get_unique_properties('category', \
+                                              challenges))
+    i = 0
+    for cat in unq_cats:
+        print('{}: {}'.format(i, cat))
+        i += 1
+
+    sel = int(input('SELECT CATEGORY [0-{}]: '.format(len(unq_cats))))
+    if sel not in range(0, len(unq_cats)):
+        raise ValueError
+    global CATEGORY
+    CATEGORY = unq_cats[sel]
+    
 def main():
     # 1) Greet the player
     print('[+] READY PLAYER ONE')
@@ -26,35 +61,23 @@ def main():
     challenges = CIOUtils.update_manifest()
     print('[+] {} CHALLENGES LOADED 👌'.format(len(challenges)))
     
-    # 2) DIFFICULTY/CATEGORY
     while True:
-	    try:
-	    	dontoverflowmebro = input('SELECT DIFFICULTY [1-5]: ')
-	    	if dontoverflowmebro is "1":
-	    		print ('[+] DIFFICULTY SET TO {}'.format(dontoverflowmebro)) #set Challenge.difficulty=1 - define func to handle this in utils
-	    		break
-	    	elif dontoverflowmebro is "2":
-	    		print ('[+] DIFFICULTY SET TO {}'.format(dontoverflowmebro))
-	    		break
-	    	elif dontoverflowmebro is "3":
-	    		print ('[+] DIFFICULTY SET TO {}'.format(dontoverflowmebro))
-	    		break
-	    	elif dontoverflowmebro is "4":
-	    		print ('[+] DIFFICULTY SET TO {}'.format(dontoverflowmebro))
-	    		break
-	    	elif dontoverflowmebro is "5":
-	    		print ('[+] DIFFICULTY SET TO {}'.format(dontoverflowmebro))
-	    		break
-	    except ValueError:
-	    	print('naughty boy. naughty, naughty naughty!')
-	    	break
+        try:
+            # 2) LEVEL/CATEGORY
+            select_level(challenges)
+            select_category(challenges)
+        except ValueError:
+            print('naughty boy. naughty, naughty naughty!')
+            continue
 
-	# TODO: Include additional categories as they become available, hold ya horses! 
-    print ('[+] CATEGORY SET TO {}'.format("pwn").upper())
-
-    # 5) Fetch challenge via CIODownloader
-    challenge = CIOUtils.fetch(CATEGORY, dontoverflowmebro)
-    print (challenge.url)
+        filtered_chals = challenges
+        filtered_chals = CIOUtils.search_by_property(CATEGORY, 'category', filtered_chals)
+        filtered_chals = CIOUtils.search_by_property(LEVEL, 'difficulty', filtered_chals)
+        print('filtered on: {} and {}'.format(CATEGORY, LEVEL))
+        CIOUtils.print_challenges_list(filtered_chals)
+        # 5) Fetch challenge via CIODownloader
+        #challenge = CIOUtils.fetch(CATEGORY, difficulty)
+        #print (challenge.url)
 
 if __name__ == '__main__':
 	if __debug__:
@@ -64,22 +87,4 @@ if __name__ == '__main__':
 	        print (challenges)
 	    except:
 	        pass
-
 	main()
-
-
-    #print('Get all pwn challenges')
-    #print('~~~~~~~~~~~~~~~~~~~~~~~~~')
-    #CIOUtils.print_challenges_list(CIOUtils.search_by_property('pwn', 'category',  challenges))
-    #print()
-
-	'''
-    print('Get all files from nosql-160 challenge')
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    cur_c = CIOUtils.search_by_property('europe02-120', 'name',  challenges)[0]
-    get_challenge_files(cur_c, xml_root)
-    CIOUtils.get_challenge_recipe(cur_c)
-	'''
-
-	#  6) Provision OS for challenge via CIOInitializer 
-	#  7) Execute challenge as a service, send player info via CIODaemonizer
